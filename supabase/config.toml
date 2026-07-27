@@ -1,0 +1,23 @@
+# Configuration Supabase pour Marge.
+# project_id sert de nom local ; le lien vers le projet cloud se fait via
+# `supabase link --project-ref <ref>`.
+project_id = "marge"
+
+[db]
+major_version = 15
+
+[auth]
+enable_signup = true
+# URL de base de l'app pour les redirections d'auth.
+site_url = "http://localhost:4321"
+additional_redirect_urls = ["http://localhost:4321/auth/callback"]
+
+[auth.external.github]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GITHUB_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GITHUB_SECRET)"
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"

@@ -1,0 +1,97 @@
+/**
+ * Types métier de Marge. Le principe non négociable : l'unité de contribution
+ * est le bloc, pas la ligne. Un article est une liste ordonnée de blocs,
+ * chacun avec un identifiant stable qui survit aux révisions.
+ */
+
+export type BlockType = "h1" | "lede" | "p" | "quote" | "code" | "image";
+
+export interface Block {
+  id: string;
+  type: BlockType;
+  /** Texte brut : ancre des suggestions et des diffs (toujours présent). */
+  text: string;
+  /**
+   * Projection riche optionnelle (liens, gras, italique…) pour l'affichage.
+   * Généré par l'éditeur ; ignoré par la logique de suggestion/diff qui ne
+   * travaille que sur `text`. Pour un bloc image, `text` contient l'URL.
+   */
+  html?: string;
+}
+
+export type SuggestionKind = "typo" | "edit";
+
+export type SuggestionStatus = "open" | "accepted" | "rejected" | "withdrawn";
+
+/** Statut effectif affiché, incluant l'état calculé `stale` (non stocké). */
+export type ResolvedStatus = SuggestionStatus | "stale";
+
+export type ArticleStatus = "draft" | "published" | "archived";
+
+export interface Profile {
+  id: string;
+  handle: string;
+  display_name: string;
+  avatar_url: string | null;
+  bio: string | null;
+}
+
+export interface Article {
+  id: string;
+  author_id: string;
+  slug: string;
+  title: string;
+  lede: string | null;
+  status: ArticleStatus;
+  current_revision_id: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+
+export interface Revision {
+  id: string;
+  article_id: string;
+  number: number;
+  blocks: Block[];
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface Suggestion {
+  id: string;
+  article_id: string;
+  block_id: string;
+  base_revision_id: string;
+  original_text: string;
+  proposed_text: string;
+  reason: string | null;
+  kind: SuggestionKind;
+  status: SuggestionStatus;
+  author_id: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  created_at: string;
+}
+
+/** Suggestion enrichie du calcul de périmé et, en option, de l'auteur joint. */
+export interface ResolvedSuggestion extends Suggestion {
+  resolved_status: ResolvedStatus;
+  is_stale: boolean;
+  author?: Profile;
+}
+
+export type NotificationKind =
+  | "suggestion_received"
+  | "suggestion_accepted"
+  | "suggestion_rejected"
+  | "comment";
+
+export interface Notification {
+  id: string;
+  recipient_id: string;
+  kind: NotificationKind;
+  payload: Record<string, unknown>;
+  read_at: string | null;
+  created_at: string;
+}

@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de Marge — repris tels quels du prototype (objet `C` de marge-mvp.jsx
+ * / landing.jsx). Exposés comme variables CSS puis mappés dans le thème
+ * Tailwind v4 via @theme, pour être utilisables en `bg-paper`, `text-pencil`,
+ * etc. tout en restant disponibles en `var(--pencil)` dans les styles inline.
+ */
+
+:root {
+  --paper: #fcfcfa;
+  --panel: #f4f4f0;
+  --ink: #17191c;
+  --ink-soft: #5e6167;
+  --ink-faint: #9b9ea3;
+  --rule: #e4e4dd;
+  --pencil: #3b4cc0; /* bleu de correction — suggestions ouvertes */
+  --pencil-soft: #edeffb;
+  --accepted: #1f7a55;
+  --accepted-soft: #e6f2ec;
+  --stale: #a8630f;
+  --stale-soft: #fbf0df;
+  --del: #fbe3e3;
+  --del-ink: #93312f;
+  --add: #e1f1e7;
+  --add-ink: #1c6b4a;
+
+  /* Courbe d'accélération partagée (reprise de EASE dans le prototype). */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-pencil: var(--pencil);
+  --color-pencil-soft: var(--pencil-soft);
+  --color-accepted: var(--accepted);
+  --color-accepted-soft: var(--accepted-soft);
+  --color-stale: var(--stale);
+  --color-stale-soft: var(--stale-soft);
+  --color-del: var(--del);
+  --color-del-ink: var(--del-ink);
+  --color-add: var(--add);
+  --color-add-ink: var(--add-ink);
+
+  /* Polices chargées via next/font dans app/layout.tsx. */
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* Accessibilité : anneau de focus cohérent avec le prototype. */
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible,
+input:focus-visible,
+[contenteditable]:focus-visible {
+  outline: 2px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
