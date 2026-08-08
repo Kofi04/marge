@@ -35,12 +35,22 @@ export const blockSchema = z.object({
   text: z.string(),
 });
 
+/** Un tag : minuscules, lettres/chiffres/tirets, 2–30 caractères. */
+export const tagSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(2, "Au moins 2 caractères")
+  .max(30, "30 caractères maximum")
+  .regex(/^[a-z0-9-]+$/, "Lettres, chiffres et tirets");
+
 /** Sauvegarde d'un article depuis l'éditeur. */
 export const saveArticleSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().trim().min(1, "Titre requis").max(200),
   lede: z.string().trim().max(400).optional().or(z.literal("")),
   blocks: z.array(blockSchema).min(1, "Au moins un bloc"),
+  tags: z.array(tagSchema).max(6, "6 tags maximum").default([]),
   status: z.enum(["draft", "published"]).default("draft"),
   note: z.string().trim().max(200).optional().or(z.literal("")),
 });

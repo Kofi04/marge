@@ -18,7 +18,7 @@ export default async function WritePage({
 
   const { edit } = await searchParams;
 
-  let initial: { id: string; title: string; lede: string; blocks: Block[] } | undefined;
+  let initial: { id: string; title: string; lede: string; blocks: Block[]; tags: string[] } | undefined;
   if (edit) {
     const supabase = await createClient();
     const { data: articleRow } = await supabase.from("articles").select("*").eq("id", edit).single();
@@ -31,6 +31,7 @@ export default async function WritePage({
         title: article.title,
         lede: article.lede ?? "",
         blocks: revision?.blocks ?? [],
+        tags: article.tags ?? [],
       };
     }
   }

@@ -17,6 +17,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Composer, type ComposerSubmit } from "@/components/margin/Composer";
 import { SuggestionCard } from "@/components/margin/SuggestionCard";
 import { ShareMenu } from "@/components/article/ShareMenu";
+import { FollowButton } from "@/components/follow/FollowButton";
 
 const DRAFT_KEY = "marge:draft";
 
@@ -251,7 +252,7 @@ export function ArticleView({
         <AnimatePresence>
           {showHistory && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ borderTop: `1px solid ${C.rule}`, background: C.panel, overflow: "hidden" }}>
-              <div style={{ maxWidth: 1180, margin: "0 auto", padding: "12px 22px", display: "flex", gap: 22, flexWrap: "wrap" }}>
+              <div style={{ maxWidth: 1180, margin: "0 auto", padding: "12px 22px", display: "flex", gap: 22, flexWrap: "wrap", alignItems: "center" }}>
                 {data.revisions.map((r) => (
                   <div key={r.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: r.number === revNumber ? C.paper : C.inkSoft, background: r.number === revNumber ? C.ink : "#E4E4DD", borderRadius: 5, padding: "2px 6px" }}>v{r.number}</span>
@@ -261,6 +262,9 @@ export function ArticleView({
                     </div>
                   </div>
                 ))}
+                <Link href={`${articleUrl}/history`} style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 600, color: C.pencil, whiteSpace: "nowrap" }}>
+                  Voir le diff détaillé →
+                </Link>
               </div>
             </motion.div>
           )}
@@ -276,7 +280,20 @@ export function ArticleView({
             <Link href={`/@${data.author.handle}`} style={{ color: C.ink, fontWeight: 600 }}>{data.author.display_name}</Link>
             <span>·</span>
             <span>{data.article.status === "published" ? "Publié" : "Brouillon"}</span>
+            <span style={{ marginLeft: "auto" }}>
+              <FollowButton targetId={data.article.author_id} size="sm" />
+            </span>
           </div>
+
+          {data.article.tags.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 26 }}>
+              {data.article.tags.map((t) => (
+                <Link key={t} href={`/tags/${encodeURIComponent(t)}`} style={{ fontSize: 11.5, fontWeight: 600, color: C.pencil, background: C.pencilSoft, padding: "2px 8px", borderRadius: 999 }}>
+                  #{t}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {blocks.map((b) => {
             const open = queue.filter((s) => s.block_id === b.id);

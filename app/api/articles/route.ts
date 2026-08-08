@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
   const parsed = saveArticleSchema.safeParse(await request.json());
   if (!parsed.success) return err(400, parsed.error.issues[0].message);
   const input = parsed.data;
+  // Dédoublonne les tags en préservant l'ordre de saisie.
+  const tags = Array.from(new Set(input.tags));
 
   const { data: profile } = await supabase.from("profiles").select("handle").eq("id", user.id).single();
   const handle = (profile as { handle: string } | null)?.handle;
@@ -35,7 +37,7 @@ export async function POST(request: NextRequest) {
     if (article.author_id !== user.id) return err(403, "Article d'un autre auteur.");
     slug = article.slug;
 
-    const update: Record<string, unknown> = { title: input.title, lede: input.lede || null, status: input.status };
+    const update: Record<string, unknown> = { title: input.title, lede: input.lede || null, status: input.status, tags };
     if (input.status === "published" && !article.published_at) update.published_at = new Date().toISOString();
     const { error: updErr } = await supabase.from("articles").update(update).eq("id", articleId);
     if (updErr) return err(400, updErr.message);
@@ -62,6 +64,7 @@ export async function POST(request: NextRequest) {
         title: input.title,
         lede: input.lede || null,
         status: input.status,
+        tags,
         published_at: input.status === "published" ? new Date().toISOString() : null,
       })
       .select("id")

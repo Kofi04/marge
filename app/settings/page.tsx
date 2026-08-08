@@ -3,6 +3,7 @@ import { getSessionProfile } from "@/lib/auth";
 import { getNotifications } from "@/lib/notifications";
 import { AppHeader } from "@/components/AppHeader";
 import { SettingsForm } from "@/components/settings/SettingsForm";
+import { EmailPrefToggle } from "@/components/settings/EmailPrefToggle";
 import { NotificationsList } from "@/components/settings/NotificationsList";
 import { C } from "@/lib/tokens";
 
@@ -27,6 +28,13 @@ export default async function SettingsPage() {
             Profil
           </h2>
           <SettingsForm profile={profile} />
+        </section>
+
+        <section style={{ marginBottom: 44 }}>
+          <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: C.inkFaint, margin: "0 0 16px" }}>
+            Préférences
+          </h2>
+          <EmailPrefToggle userId={userId} initial={profile.email_notifications} />
         </section>
 
         <section>

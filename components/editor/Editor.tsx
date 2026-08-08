@@ -10,9 +10,10 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import {
   Bold, Italic, Quote, Code, Heading1, List, ListOrdered,
-  Link2, ImageIcon, Send, Save,
+  Link2, ImageIcon, Send, Save, X,
 } from "lucide-react";
 import { C } from "@/lib/tokens";
+import { tagSchema } from "@/lib/schemas";
 import type { Block } from "@/lib/types";
 
 function newBlockId(): string {
@@ -57,7 +58,7 @@ function nodeToBlockType(name: string): Block["type"] {
 export function Editor({
   initial,
 }: {
-  initial?: { id: string; title: string; lede: string; blocks: Block[] };
+  initial?: { id: string; title: string; lede: string; blocks: Block[]; tags: string[] };
 }) {
   const router = useRouter();
   const existingTitle = initial?.blocks.find((b) => b.type === "h1");
@@ -67,8 +68,31 @@ export function Editor({
   const [lede, setLede] = useState(initial?.lede ?? existingLede?.text ?? "");
   const [titleId] = useState(existingTitle?.id ?? newBlockId());
   const [ledeId] = useState(existingLede?.id ?? newBlockId());
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
+  const [tagDraft, setTagDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function addTag() {
+    const parsed = tagSchema.safeParse(tagDraft);
+    if (!parsed.success) {
+      if (tagDraft.trim()) setError(parsed.error.issues[0].message);
+      return;
+    }
+    if (tags.length >= 6) return setError("6 tags maximum.");
+    if (!tags.includes(parsed.data)) setTags([...tags, parsed.data]);
+    setTagDraft("");
+    setError(null);
+  }
+
+  function onTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === "," ) {
+      e.preventDefault();
+      addTag();
+    } else if (e.key === "Backspace" && !tagDraft && tags.length) {
+      setTags(tags.slice(0, -1));
+    }
+  }
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -145,7 +169,7 @@ export function Editor({
     const res = await fetch("/api/articles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: initial?.id, title: title.trim(), lede: lede.trim(), blocks, status }),
+      body: JSON.stringify({ id: initial?.id, title: title.trim(), lede: lede.trim(), blocks, tags, status }),
     });
     setBusy(false);
     const j = await res.json().catch(() => null);
@@ -206,6 +230,29 @@ export function Editor({
 
       <div style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 18 }} className="editor-body">
         <EditorContent editor={editor} />
+      </div>
+
+      {/* Tags : découverte via recherche et pages de tags. */}
+      <div style={{ marginTop: 22, borderTop: `1px solid ${C.rule}`, paddingTop: 18 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: C.inkSoft, marginBottom: 8 }}>Tags <span style={{ color: C.inkFaint, fontWeight: 400 }}>(6 max)</span></div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+          {tags.map((t) => (
+            <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 600, color: C.pencil, background: C.pencilSoft, padding: "3px 6px 3px 9px", borderRadius: 999 }}>
+              #{t}
+              <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Retirer ${t}`} style={{ display: "inline-flex", background: "none", border: "none", color: C.pencil, cursor: "pointer", padding: 0 }}>
+                <X size={13} />
+              </button>
+            </span>
+          ))}
+          <input
+            value={tagDraft}
+            onChange={(e) => setTagDraft(e.target.value.toLowerCase())}
+            onKeyDown={onTagKeyDown}
+            onBlur={addTag}
+            placeholder={tags.length ? "Ajouter…" : "design, écriture, produit…"}
+            style={{ flex: "1 0 120px", minWidth: 120, border: "none", outline: "none", background: "transparent", fontSize: 13.5, fontFamily: "inherit", color: C.ink, padding: "4px 2px" }}
+          />
+        </div>
       </div>
 
       {error && <p style={{ fontSize: 13, color: C.delInk, background: C.del, padding: "9px 12px", borderRadius: 8, marginTop: 16 }}>{error}</p>}

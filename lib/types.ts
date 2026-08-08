@@ -34,6 +34,8 @@ export interface Profile {
   display_name: string;
   avatar_url: string | null;
   bio: string | null;
+  /** Reçoit les notifications par e-mail (défaut : true). */
+  email_notifications: boolean;
 }
 
 export interface Article {
@@ -46,6 +48,8 @@ export interface Article {
   current_revision_id: string | null;
   published_at: string | null;
   created_at: string;
+  /** Étiquettes libres pour la découverte (recherche + pages de tags). */
+  tags: string[];
 }
 
 export interface Revision {

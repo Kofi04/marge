@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   title: "Marge — vos lecteurs corrigent dans la marge",
   description:
     "Plateforme de blog où les lecteurs proposent des modifications dans la marge. Vous acceptez, l'article gagne une révision, le contributeur gagne un crédit.",
+  alternates: { types: { "application/rss+xml": "/rss.xml" } },
 };
 
 export default function RootLayout({

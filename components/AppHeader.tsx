@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, PenLine, Inbox, Settings, LogOut } from "lucide-react";
+import { Home, PenLine, FileText, Inbox, Settings, Search, LogOut } from "lucide-react";
 import { C } from "@/lib/tokens";
 import type { Profile } from "@/lib/types";
 import { Avatar } from "@/components/ui/Avatar";
@@ -8,7 +8,7 @@ import { Avatar } from "@/components/ui/Avatar";
  * En-tête des pages authentifiées. Le logo et l'onglet Accueil ramènent à la
  * page d'accueil connectée (/home). La déconnexion passe par un POST /auth/signout.
  */
-export function AppHeader({ profile, active }: { profile: Profile; active?: "home" | "write" | "review" | "settings" }) {
+export function AppHeader({ profile, active }: { profile: Profile; active?: "home" | "write" | "articles" | "review" | "settings" }) {
   const link = (href: string, label: string, Icon: typeof PenLine, key: string) => (
     <Link
       href={href}
@@ -33,11 +33,15 @@ export function AppHeader({ profile, active }: { profile: Profile; active?: "hom
         <nav style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: 8 }}>
           {link("/home", "Accueil", Home, "home")}
           {link("/write", "Écrire", PenLine, "write")}
+          {link("/articles", "Mes articles", FileText, "articles")}
           {link("/review", "File", Inbox, "review")}
           {link("/settings", "Réglages", Settings, "settings")}
         </nav>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+          <Link href="/search" title="Rechercher" style={{ display: "inline-flex", alignItems: "center", color: C.inkFaint, padding: 4 }}>
+            <Search size={16} />
+          </Link>
           <Link href={`/@${profile.handle}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
             <Avatar name={profile.display_name} size={26} />
           </Link>

@@ -1,24 +1,32 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { PenLine, ArrowRight, Compass, Sparkles } from "lucide-react";
+import { PenLine, Compass, Sparkles, Users } from "lucide-react";
 import { getSessionProfile, isProvisionalHandle } from "@/lib/auth";
 import { getArticleFeed } from "@/lib/feed";
+import { getFollowingFeed } from "@/lib/follows";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/AppHeader";
-import { Avatar } from "@/components/ui/Avatar";
-import { timeAgo } from "@/lib/time";
+import { SearchBox } from "@/components/search/SearchBox";
+import { ArticleCard } from "@/components/feed/ArticleCard";
 import { C } from "@/lib/tokens";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ feed?: string }>;
+}) {
   const { userId, profile } = await getSessionProfile();
   if (!userId || !profile) redirect("/login?next=/home");
   if (isProvisionalHandle(profile.handle)) redirect("/welcome");
 
+  const { feed: feedParam } = await searchParams;
+  const tab: "discover" | "following" = feedParam === "following" ? "following" : "discover";
+
   const supabase = await createClient();
   const [feed, { count: myArticles }] = await Promise.all([
-    getArticleFeed(20),
+    tab === "following" ? getFollowingFeed(userId, 20) : getArticleFeed(20),
     supabase.from("articles").select("id", { count: "exact", head: true }).eq("author_id", userId),
   ]);
   const isNew = (myArticles ?? 0) === 0;
@@ -55,42 +63,51 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Fil d'actualité */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: C.inkFaint, fontSize: 11, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase" }}>
-          <Compass size={13} /> Fil d&apos;actualité
+        {/* Recherche */}
+        <div style={{ marginBottom: 26 }}>
+          <SearchBox />
+        </div>
+
+        {/* Bascule Découvrir / Suivis */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 18, borderBottom: `1px solid ${C.rule}` }}>
+          <FeedTab href="/home" active={tab === "discover"} icon={<Compass size={14} />} label="Découvrir" />
+          <FeedTab href="/home?feed=following" active={tab === "following"} icon={<Users size={14} />} label="Suivis" />
         </div>
 
         {feed.length === 0 ? (
           <div style={{ border: `1px dashed ${C.rule}`, borderRadius: 12, padding: 32, textAlign: "center" }}>
-            <p style={{ margin: 0, fontSize: 14, color: C.inkSoft }}>
-              Aucun article publié pour l&apos;instant. Soyez le premier — <Link href="/write" style={{ color: C.pencil, fontWeight: 600 }}>écrivez le vôtre</Link>.
-            </p>
+            {tab === "following" ? (
+              <p style={{ margin: 0, fontSize: 14, color: C.inkSoft }}>
+                Vous ne suivez encore personne, ou vos auteurs n&apos;ont rien publié. Passez sur <Link href="/home" style={{ color: C.pencil, fontWeight: 600 }}>Découvrir</Link> pour trouver des auteurs à suivre.
+              </p>
+            ) : (
+              <p style={{ margin: 0, fontSize: 14, color: C.inkSoft }}>
+                Aucun article publié pour l&apos;instant. Soyez le premier — <Link href="/write" style={{ color: C.pencil, fontWeight: 600 }}>écrivez le vôtre</Link>.
+              </p>
+            )}
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {feed.map((a) => (
-              <Link
-                key={a.id}
-                href={`/@${a.author.handle}/${a.slug}`}
-                style={{ border: `1px solid ${C.rule}`, borderRadius: 12, padding: 18, display: "block", background: C.paper }}
-                className="feed-card"
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 12.5, color: C.inkFaint }}>
-                  <Avatar name={a.author.display_name} size={20} />
-                  <span style={{ color: C.ink, fontWeight: 600 }}>{a.author.display_name}</span>
-                  {a.published_at && <><span>·</span><span>{timeAgo(a.published_at)}</span></>}
-                </div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 500, letterSpacing: "-.01em", marginBottom: 4 }}>{a.title}</div>
-                {a.lede && <div style={{ fontSize: 14, color: C.inkSoft, lineHeight: 1.55 }}>{a.lede}</div>}
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 10, fontSize: 12.5, color: C.pencil, fontWeight: 600 }}>
-                  Lire et contribuer <ArrowRight size={13} />
-                </div>
-              </Link>
-            ))}
+            {feed.map((a) => <ArticleCard key={a.id} item={a} />)}
           </div>
         )}
       </main>
       <style>{`.feed-card { transition: border-color .2s, transform .2s; } .feed-card:hover { border-color: #C9CBD2; transform: translateY(-2px); }`}</style>
     </div>
+  );
+}
+
+/** Onglet de bascule du fil (Découvrir / Suivis). */
+function FeedTab({ href, active, icon, label }: { href: string; active: boolean; icon: React.ReactNode; label: string }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", fontSize: 13.5, fontWeight: 600,
+        color: active ? C.ink : C.inkFaint, borderBottom: `2px solid ${active ? C.ink : "transparent"}`, marginBottom: -1,
+      }}
+    >
+      {icon} {label}
+    </Link>
   );
 }

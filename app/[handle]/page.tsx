@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PenLine, Sparkles } from "lucide-react";
+import { PenLine, Sparkles, Rss } from "lucide-react";
 import { getProfileView } from "@/lib/profile";
+import { getFollowCounts } from "@/lib/follows";
 import { C } from "@/lib/tokens";
 import { Avatar } from "@/components/ui/Avatar";
+import { FollowButton } from "@/components/follow/FollowButton";
 import { timeAgo } from "@/lib/time";
 
 // Profil public : rendu en Server Component avec cache ISR (client anon,
@@ -22,7 +24,10 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   if (!handle) return {};
   const view = await getProfileView(handle);
   if (!view) return {};
-  return { title: `${view.profile.display_name} (@${handle}) — Marge` };
+  return {
+    title: `${view.profile.display_name} (@${handle}) — Marge`,
+    alternates: { types: { "application/rss+xml": `/@${handle}/rss.xml` } },
+  };
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ handle: string }> }) {
@@ -33,6 +38,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   const view = await getProfileView(handle);
   if (!view) notFound();
   const { profile, articles, contributions } = view;
+  const counts = await getFollowCounts(profile.id);
 
   return (
     <div style={{ minHeight: "100vh", background: C.paper, color: C.ink }}>
@@ -48,18 +54,24 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "40px 22px 90px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 10 }}>
           <Avatar name={profile.display_name} size={56} tone="pencil" />
-          <div>
+          <div style={{ flex: 1 }}>
             <h1 style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 500, margin: 0, letterSpacing: "-.02em" }}>
               {profile.display_name}
             </h1>
             <span style={{ fontSize: 13.5, color: C.inkFaint }}>@{profile.handle}</span>
           </div>
+          <FollowButton targetId={profile.id} />
         </div>
         {profile.bio && <p style={{ fontSize: 15, color: C.inkSoft, lineHeight: 1.6, margin: "0 0 8px", maxWidth: 520 }}>{profile.bio}</p>}
 
-        <div style={{ display: "flex", gap: 20, margin: "18px 0 34px", fontSize: 13 }}>
+        <div style={{ display: "flex", gap: 20, margin: "18px 0 34px", fontSize: 13, flexWrap: "wrap" }}>
           <span style={{ color: C.inkSoft }}><strong style={{ color: C.ink }}>{articles.length}</strong> article{articles.length > 1 ? "s" : ""}</span>
           <span style={{ color: C.inkSoft }}><strong style={{ color: C.ink }}>{contributions.length}</strong> contribution{contributions.length > 1 ? "s" : ""} acceptée{contributions.length > 1 ? "s" : ""}</span>
+          <span style={{ color: C.inkSoft }}><strong style={{ color: C.ink }}>{counts.followers}</strong> abonné{counts.followers > 1 ? "s" : ""}</span>
+          <span style={{ color: C.inkSoft }}><strong style={{ color: C.ink }}>{counts.following}</strong> abonnement{counts.following > 1 ? "s" : ""}</span>
+          <a href={`/@${profile.handle}/rss.xml`} title="Flux RSS" style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.stale, fontWeight: 600 }}>
+            <Rss size={13} /> RSS
+          </a>
         </div>
 
         {/* Articles écrits */}
