@@ -133,7 +133,13 @@ Légende effort : `S` (≤ ½ j), `M` (~1 j), `L` (2 j+).
 
 ---
 
-## Phase D — Tier 4 : confort & polish
+## Phase D — Tier 4 : confort & polish ✅ livrée (2026-08-09)
+
+> D1 tableau de bord (`0009` view_count + `increment_view`, `/dashboard` :
+> vues, taux d'acceptation, top contributeurs), D2 **mode sombre** (`C`→`var()`,
+> palette sombre + `ThemeToggle` + script anti-flash), D3 raccourcis clavier
+> (J/K/A/R/? dans la file), D4 autosave brouillon en place (`0010` `save_draft`)
+> + import Markdown (`lib/markdown-import.ts`). 11 tests ajoutés.
 
 ### D1. Tableau de bord auteur (stats) · `M`
 - **Données** (`0009_stats.sql`) : `articles.view_count int default 0` + RPC

@@ -23,12 +23,11 @@ export function SearchBox({ initial = "", autoFocus = false }: { initial?: strin
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Rechercher un article, un sujet, un tag…"
-        // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus={autoFocus}
         style={{
           width: "100%", boxSizing: "border-box", padding: "10px 12px 10px 36px",
           border: `1px solid ${C.rule}`, borderRadius: 10, fontSize: 14, fontFamily: "inherit",
-          background: "#fff", color: C.ink, outline: "none",
+          background: C.field, color: C.ink, outline: "none",
         }}
       />
     </form>

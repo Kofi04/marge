@@ -46,6 +46,9 @@
 
 Tokens de couleur repris du prototype (`lib/tokens.ts` + `app/globals.css`) :
 `paper`, `panel`, `ink`, `pencil` (bleu de correction), `accepted`, `stale`, etc.
+**`C.*` pointe vers des `var(--token)`** : le thème (clair/**sombre**) est piloté
+par `data-theme` sur `<html>` (bascule `ThemeToggle` + script anti-flash dans le
+layout), donc les styles inline suivent automatiquement le thème.
 
 ---
 
@@ -70,7 +73,7 @@ lib/
   queries.ts  feed.ts     profile.ts      notifications.ts
   markdown.ts slug.ts     time.ts         auth.ts     schemas.ts
   supabase/{client,server,middleware,anon}.ts
-supabase/migrations/       0001…0008 (schéma, RLS, fonctions, realtime, e-mail, recherche/follows, focus/mentions/reports)
+supabase/migrations/       0001…0010 (…, stats/view_count, autosave brouillon en place)
 supabase/functions/        notify-email (Edge Function : notification → Resend)
 scripts/                   apply-migrations, seed, test-accept, reassign-demo
 tests/                     diff.test.ts, stale.test.ts
@@ -150,6 +153,7 @@ modifié entre-temps, double appel (une seule révision N+1).
 | `/@handle/slug` | dynamique | Article + marge des suggestions (Realtime) |
 | `/@handle/slug/history` | dynamique | Historique des révisions + diff mot à mot |
 | `/articles` | dynamique | « Mes articles » : gestion (publier/archiver/supprimer) |
+| `/dashboard` | dynamique | Tableau de bord auteur : vues, taux d'acceptation, contributeurs |
 | `/search` | dynamique | Recherche plein texte (titre + contenu + tags) |
 | `/tags/[tag]` | dynamique | Articles publiés portant un tag |
 | `/write` | dynamique | Éditeur Tiptap (création / nouvelle révision) + tags |

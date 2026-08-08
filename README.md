@@ -34,6 +34,6 @@ node scripts/reassign-demo.mjs <email>   # devenir auteur de l'article de démo
 
 ## Tests
 
-`npm run test` (49 tests : diff, périmé, diff de révisions, RSS, recherche, focus, mentions) et
+`npm run test` (60 tests : diff, périmé, révisions, RSS, recherche, focus, mentions, import Markdown) et
 `node scripts/test-accept.mjs` (9 assertions : acceptation atomique, autorisation,
 anti-périmé, concurrence).

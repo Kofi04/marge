@@ -50,6 +50,8 @@ export interface Article {
   created_at: string;
   /** Étiquettes libres pour la découverte (recherche + pages de tags). */
   tags: string[];
+  /** Nombre de vues (incrémenté via la RPC increment_view). */
+  view_count: number;
 }
 
 export interface Revision {

@@ -26,7 +26,7 @@ export default async function TagPage({ params }: { params: Promise<{ tag: strin
   return (
     <div style={{ minHeight: "100vh", background: C.paper }}>
       {profile ? <AppHeader profile={profile} /> : (
-        <header style={{ borderBottom: `1px solid ${C.rule}`, background: "rgba(252,252,250,.88)" }}>
+        <header style={{ borderBottom: `1px solid ${C.rule}`, background: C.headerBg }}>
           <div style={{ maxWidth: 720, margin: "0 auto", padding: "11px 22px" }}>
             <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 22, height: 22, borderRadius: 6, background: C.ink, color: C.paper, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700 }}>M</div>
@@ -56,7 +56,7 @@ export default async function TagPage({ params }: { params: Promise<{ tag: strin
           </div>
         )}
       </main>
-      <style>{`.feed-card { transition: border-color .2s, transform .2s; } .feed-card:hover { border-color: #C9CBD2; transform: translateY(-2px); }`}</style>
+      <style>{`.feed-card { transition: border-color .2s, transform .2s; } .feed-card:hover { border-color: var(--rule-strong); transform: translateY(-2px); }`}</style>
     </div>
   );
 }

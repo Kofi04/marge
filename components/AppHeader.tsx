@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { Home, PenLine, FileText, Inbox, Settings, Search, LogOut } from "lucide-react";
+import { Home, PenLine, FileText, Inbox, BarChart3, Settings, Search, LogOut } from "lucide-react";
 import { C } from "@/lib/tokens";
 import type { Profile } from "@/lib/types";
 import { Avatar } from "@/components/ui/Avatar";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 /**
  * En-tête des pages authentifiées. Le logo et l'onglet Accueil ramènent à la
  * page d'accueil connectée (/home). La déconnexion passe par un POST /auth/signout.
  */
-export function AppHeader({ profile, active }: { profile: Profile; active?: "home" | "write" | "articles" | "review" | "settings" }) {
+export function AppHeader({ profile, active }: { profile: Profile; active?: "home" | "write" | "articles" | "review" | "dashboard" | "settings" }) {
   const link = (href: string, label: string, Icon: typeof PenLine, key: string) => (
     <Link
       href={href}
@@ -23,7 +24,7 @@ export function AppHeader({ profile, active }: { profile: Profile; active?: "hom
   );
 
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(252,252,250,.88)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.rule}` }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 20, background: C.headerBg, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.rule}` }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "11px 22px", display: "flex", alignItems: "center", gap: 14 }}>
         <Link href="/home" style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ width: 22, height: 22, borderRadius: 6, background: C.ink, color: C.paper, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700 }}>M</div>
@@ -35,6 +36,7 @@ export function AppHeader({ profile, active }: { profile: Profile; active?: "hom
           {link("/write", "Écrire", PenLine, "write")}
           {link("/articles", "Mes articles", FileText, "articles")}
           {link("/review", "File", Inbox, "review")}
+          {link("/dashboard", "Stats", BarChart3, "dashboard")}
           {link("/settings", "Réglages", Settings, "settings")}
         </nav>
 
@@ -42,6 +44,7 @@ export function AppHeader({ profile, active }: { profile: Profile; active?: "hom
           <Link href="/search" title="Rechercher" style={{ display: "inline-flex", alignItems: "center", color: C.inkFaint, padding: 4 }}>
             <Search size={16} />
           </Link>
+          <ThemeToggle compact />
           <Link href={`/@${profile.handle}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
             <Avatar name={profile.display_name} size={26} />
           </Link>

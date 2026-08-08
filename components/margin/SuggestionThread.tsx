@@ -138,7 +138,7 @@ export function SuggestionThread({
             value={body}
             onChange={onChange}
             placeholder="Répondre… (@ pour mentionner)"
-            style={{ flex: 1, border: `1px solid ${C.rule}`, borderRadius: 7, padding: "6px 9px", fontSize: 12.5, fontFamily: "inherit", outline: "none", background: "#fff", color: C.ink }}
+            style={{ flex: 1, border: `1px solid ${C.rule}`, borderRadius: 7, padding: "6px 9px", fontSize: 12.5, fontFamily: "inherit", outline: "none", background: C.field, color: C.ink }}
           />
           <button type="submit" disabled={busy || !body.trim()} style={{ display: "inline-flex", alignItems: "center", background: C.ink, color: C.paper, border: "none", borderRadius: 7, padding: "0 10px", cursor: "pointer", opacity: busy || !body.trim() ? 0.5 : 1 }}>
             <Send size={13} />

@@ -19,6 +19,7 @@ import { SuggestionCard } from "@/components/margin/SuggestionCard";
 import { ShareMenu } from "@/components/article/ShareMenu";
 import { FollowButton } from "@/components/follow/FollowButton";
 import { ReportButton } from "@/components/report/ReportButton";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const DRAFT_KEY = "marge:draft";
 
@@ -193,6 +194,15 @@ export function ArticleView({
     router.refresh();
   }
 
+  // Comptage de vue : une fois par session, en excluant l'auteur (pas d'auto-vue).
+  useEffect(() => {
+    if (isArticleAuthor) return;
+    const key = `marge:viewed:${data.article.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    void supabase.rpc("increment_view", { a_id: data.article.id });
+  }, [supabase, data.article.id, isArticleAuthor]);
+
   // Realtime : l'auteur voit arriver les propositions sans recharger.
   useEffect(() => {
     const channel = supabase
@@ -211,7 +221,7 @@ export function ArticleView({
   return (
     <div style={{ background: C.paper, minHeight: "100vh", fontFamily: "var(--sans)", color: C.ink }}>
       {/* Barre supérieure */}
-      <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(252,252,250,.88)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.rule}` }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 20, background: C.headerBg, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.rule}` }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "11px 22px", display: "flex", alignItems: "center", gap: 14 }}>
           <Link href={currentUser ? "/home" : "/"} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 22, height: 22, borderRadius: 6, background: C.ink, color: C.paper, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700 }}>M</div>
@@ -231,6 +241,7 @@ export function ArticleView({
             {currentUser && !isArticleAuthor && (
               <ReportButton targetType="article" targetId={data.article.id} compact />
             )}
+            <ThemeToggle compact />
             <ShareMenu title={data.article.title} url={articleUrl} blocks={blocks} />
             {isArticleAuthor && openCount > 0 && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.pencil, fontWeight: 600 }}>
@@ -259,7 +270,7 @@ export function ArticleView({
               <div style={{ maxWidth: 1180, margin: "0 auto", padding: "12px 22px", display: "flex", gap: 22, flexWrap: "wrap", alignItems: "center" }}>
                 {data.revisions.map((r) => (
                   <div key={r.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: r.number === revNumber ? C.paper : C.inkSoft, background: r.number === revNumber ? C.ink : "#E4E4DD", borderRadius: 5, padding: "2px 6px" }}>v{r.number}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: r.number === revNumber ? C.paper : C.inkSoft, background: r.number === revNumber ? C.ink : C.rule, borderRadius: 5, padding: "2px 6px" }}>v{r.number}</span>
                     <div>
                       <div style={{ fontSize: 12.5, color: C.ink }}>{r.note ?? "Révision"}</div>
                       <div style={{ fontSize: 11.5, color: C.inkFaint }}>{new Date(r.created_at).toLocaleDateString("fr-FR")}</div>

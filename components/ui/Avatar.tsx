@@ -20,7 +20,7 @@ export function Avatar({
   size?: number;
   tone?: "ink" | "pencil";
 }) {
-  const bg = tone === "pencil" ? C.pencilSoft : "#EAEAE4";
+  const bg = tone === "pencil" ? C.pencilSoft : C.panel;
   const fg = tone === "pencil" ? C.pencil : C.inkSoft;
   return (
     <span

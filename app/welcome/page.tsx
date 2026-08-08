@@ -80,7 +80,7 @@ function WelcomeInner() {
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <span style={{ fontSize: 12.5, fontWeight: 600, color: C.inkSoft }}>Handle</span>
-            <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.rule}`, borderRadius: 9, background: "#fff", paddingLeft: 11 }}>
+            <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.rule}`, borderRadius: 9, background: C.field, paddingLeft: 11 }}>
               <AtSign size={15} color={C.inkFaint} />
               <input
                 value={handle}
@@ -98,7 +98,7 @@ function WelcomeInner() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Votre nom"
-              style={{ border: `1px solid ${C.rule}`, borderRadius: 9, padding: "11px 13px", fontSize: 14, fontFamily: "inherit", background: "#fff", outline: "none", color: C.ink }}
+              style={{ border: `1px solid ${C.rule}`, borderRadius: 9, padding: "11px 13px", fontSize: 14, fontFamily: "inherit", background: C.field, outline: "none", color: C.ink }}
             />
           </label>
 

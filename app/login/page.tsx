@@ -123,7 +123,7 @@ function LoginInner() {
                 placeholder="vous@exemple.com"
                 style={{
                   border: `1px solid ${C.rule}`, borderRadius: 9, padding: "11px 13px",
-                  fontSize: 14, fontFamily: "inherit", background: "#fff", outline: "none", color: C.ink,
+                  fontSize: 14, fontFamily: "inherit", background: C.field, outline: "none", color: C.ink,
                 }}
               />
               <button

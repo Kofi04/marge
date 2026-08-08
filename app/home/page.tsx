@@ -92,7 +92,7 @@ export default async function HomePage({
           </div>
         )}
       </main>
-      <style>{`.feed-card { transition: border-color .2s, transform .2s; } .feed-card:hover { border-color: #C9CBD2; transform: translateY(-2px); }`}</style>
+      <style>{`.feed-card { transition: border-color .2s, transform .2s; } .feed-card:hover { border-color: var(--rule-strong); transform: translateY(-2px); }`}</style>
     </div>
   );
 }

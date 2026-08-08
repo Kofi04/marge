@@ -116,7 +116,7 @@ export function RevisionHistoryView({ title, articleUrl, revisions }: Props) {
               <BlockRow key={e.block.id} entry={e} />
             ))}
             {diff.removed.map((blk: Block) => (
-              <div key={blk.id} style={{ border: `1px solid ${C.del}`, borderRadius: 10, padding: "12px 14px", background: "#fff" }}>
+              <div key={blk.id} style={{ border: `1px solid ${C.del}`, borderRadius: 10, padding: "12px 14px", background: C.field }}>
                 <BadgeRow label="Retiré" bg={C.del} fg={C.delInk} type={blk.type} />
                 <BlockText text={blk.text} muted strike />
               </div>
@@ -145,7 +145,7 @@ function BlockRow({ entry }: { entry: BlockEntry }) {
   }
   const badge = STATUS_BADGE[status];
   return (
-    <div style={{ padding: "12px 14px", borderRadius: 10, border: `1px solid ${status === "modified" ? C.pencil : C.rule}`, background: "#fff" }}>
+    <div style={{ padding: "12px 14px", borderRadius: 10, border: `1px solid ${status === "modified" ? C.pencil : C.rule}`, background: C.field }}>
       <BadgeRow label={badge.label} bg={badge.bg} fg={badge.fg} type={block.type} />
       {status === "modified" && parts ? (
         <Diff from={entry.before!.text} to={block.text} />
@@ -186,7 +186,7 @@ function Selector({
       <select
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ border: `1px solid ${C.rule}`, borderRadius: 8, padding: "5px 8px", fontSize: 13, fontFamily: "inherit", background: "#fff", color: C.ink }}
+        style={{ border: `1px solid ${C.rule}`, borderRadius: 8, padding: "5px 8px", fontSize: 13, fontFamily: "inherit", background: C.field, color: C.ink }}
       >
         {revisions.map((r, i) => (
           <option key={r.id} value={i}>

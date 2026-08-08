@@ -160,7 +160,7 @@ export default function Landing() {
         .cta { transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s; }
         .cta:hover { transform: translateY(-2px); }
         .card { transition: border-color .3s, transform .3s; }
-        .card:hover { border-color: #C9CBD2; transform: translateY(-3px); }
+        .card:hover { border-color: var(--rule-strong); transform: translateY(-3px); }
         .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
         @media (max-width: 880px) {
           .hero-grid { grid-template-columns: 1fr !important; }
@@ -170,7 +170,7 @@ export default function Landing() {
       `}</style>
 
       {/* Nav */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(252,252,250,.88)", backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.rule}` }}>
+      <nav style={{ position: "sticky", top: 0, zIndex: 30, background: C.headerBg, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.rule}` }}>
         <div className="wrap" style={{ display: "flex", alignItems: "center", gap: 12, height: 58 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 22, height: 22, borderRadius: 6, background: C.ink, color: C.paper, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 800 }}>M</div>

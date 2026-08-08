@@ -25,8 +25,64 @@
   --add: #e1f1e7;
   --add-ink: #1c6b4a;
 
+  --rule-strong: #c9cbd2; /* bordure de survol */
+  --field: #ffffff; /* fond des champs de saisie */
+  --header-bg: rgba(252, 252, 250, 0.88); /* en-tête collant translucide */
+
   /* Courbe d'accélération partagée (reprise de EASE dans le prototype). */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Thème sombre. Les mêmes tokens, réévalués. La bascule (ThemeToggle) pose
+ * data-theme="dark|light" sur <html> ; un script inline dans le layout applique
+ * la préférence avant le premier rendu (pas de flash). Le bloc @media assure un
+ * repli correct sans JS selon la préférence système.
+ */
+:root[data-theme="dark"] {
+  --paper: #131417;
+  --panel: #1c1e22;
+  --ink: #ececE7;
+  --ink-soft: #a9acb2;
+  --ink-faint: #70747b;
+  --rule: #2a2d33;
+  --rule-strong: #3a3e45;
+  --pencil: #8b97f0;
+  --pencil-soft: #23273a;
+  --accepted: #57c08c;
+  --accepted-soft: #16271f;
+  --stale: #d69a4e;
+  --stale-soft: #2a2114;
+  --del: #3a2020;
+  --del-ink: #e8a7a3;
+  --add: #16271f;
+  --add-ink: #7fcfa5;
+  --field: #1c1e22;
+  --header-bg: rgba(19, 20, 23, 0.85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --paper: #131417;
+    --panel: #1c1e22;
+    --ink: #ececE7;
+    --ink-soft: #a9acb2;
+    --ink-faint: #70747b;
+    --rule: #2a2d33;
+    --rule-strong: #3a3e45;
+    --pencil: #8b97f0;
+    --pencil-soft: #23273a;
+    --accepted: #57c08c;
+    --accepted-soft: #16271f;
+    --stale: #d69a4e;
+    --stale-soft: #2a2114;
+    --del: #3a2020;
+    --del-ink: #e8a7a3;
+    --add: #16271f;
+    --add-ink: #7fcfa5;
+    --field: #1c1e22;
+    --header-bg: rgba(19, 20, 23, 0.85);
+  }
 }
 
 @theme inline {

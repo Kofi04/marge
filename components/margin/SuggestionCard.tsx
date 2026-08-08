@@ -47,7 +47,7 @@ export function SuggestionCard({
   const [hov, setHov] = useState(false);
   const [threadOpen, setThreadOpen] = useState(false);
   const stale = s.resolved_status === "stale";
-  const border = active ? C.pencil : hov ? "#C9CBD2" : C.rule;
+  const border = active ? C.pencil : hov ? C.ruleStrong : C.rule;
   const authorName = s.author?.display_name ?? "Contributeur";
 
   return (

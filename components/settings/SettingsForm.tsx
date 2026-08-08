@@ -44,7 +44,7 @@ export function SettingsForm({ profile }: { profile: Profile }) {
 
   const field: React.CSSProperties = {
     border: `1px solid ${C.rule}`, borderRadius: 9, padding: "10px 12px", fontSize: 14,
-    fontFamily: "inherit", background: "#fff", outline: "none", color: C.ink, width: "100%", boxSizing: "border-box",
+    fontFamily: "inherit", background: C.field, outline: "none", color: C.ink, width: "100%", boxSizing: "border-box",
   };
 
   return (

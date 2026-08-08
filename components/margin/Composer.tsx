@@ -69,7 +69,7 @@ export function Composer({
         style={{
           width: "100%", boxSizing: "border-box", resize: "vertical", border: `1px solid ${C.rule}`,
           borderRadius: 7, padding: "10px 11px", fontFamily: "var(--serif)", fontSize: 14.5,
-          lineHeight: 1.6, color: C.ink, background: "#fff", outline: "none",
+          lineHeight: 1.6, color: C.ink, background: C.field, outline: "none",
         }}
       />
 

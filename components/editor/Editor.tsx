@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { Extension } from "@tiptap/core";
@@ -10,11 +10,13 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import {
   Bold, Italic, Quote, Code, Heading1, List, ListOrdered,
-  Link2, ImageIcon, Send, Save, X,
+  Link2, ImageIcon, Send, Save, X, FileDown, Check,
 } from "lucide-react";
 import { C } from "@/lib/tokens";
 import { tagSchema } from "@/lib/schemas";
-import type { Block } from "@/lib/types";
+import { markdownToBlocks } from "@/lib/markdown-import";
+import { createClient } from "@/lib/supabase/client";
+import type { Block, ArticleStatus } from "@/lib/types";
 
 function newBlockId(): string {
   return "b_" + crypto.randomUUID().slice(0, 8);
@@ -58,9 +60,10 @@ function nodeToBlockType(name: string): Block["type"] {
 export function Editor({
   initial,
 }: {
-  initial?: { id: string; title: string; lede: string; blocks: Block[]; tags: string[] };
+  initial?: { id: string; title: string; lede: string; blocks: Block[]; tags: string[]; status: ArticleStatus };
 }) {
   const router = useRouter();
+  const supabase = createClient();
   const existingTitle = initial?.blocks.find((b) => b.type === "h1");
   const existingLede = initial?.blocks.find((b) => b.type === "lede");
 
@@ -72,6 +75,15 @@ export function Editor({
   const [tagDraft, setTagDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
+  const [mdText, setMdText] = useState("");
+
+  // Autosave brouillon : actif pour un nouvel article ou un brouillon existant.
+  // (Un article publié repasse par create_revision → pas d'autosave silencieux.)
+  const autosaveEnabled = !initial || initial.status === "draft";
+  const [savedId, setSavedId] = useState<string | undefined>(initial?.id);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(0);
 
   function addTag() {
     const parsed = tagSchema.safeParse(tagDraft);
@@ -106,6 +118,7 @@ export function Editor({
     editorProps: {
       attributes: { style: "outline:none; min-height:320px; font-family:var(--serif); font-size:17.5px; line-height:1.72;" },
     },
+    onUpdate: () => setDirty((d) => d + 1),
   });
 
   function assembleBlocks(): Block[] {
@@ -169,7 +182,8 @@ export function Editor({
     const res = await fetch("/api/articles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: initial?.id, title: title.trim(), lede: lede.trim(), blocks, tags, status }),
+      // savedId couvre le cas d'un brouillon déjà créé par l'autosave.
+      body: JSON.stringify({ id: savedId, title: title.trim(), lede: lede.trim(), blocks, tags, status }),
     });
     setBusy(false);
     const j = await res.json().catch(() => null);
@@ -177,6 +191,37 @@ export function Editor({
     router.push(j.url);
     router.refresh();
   }
+
+  // Autosave brouillon (débattu) : crée le brouillon à la 1re sauvegarde puis met
+  // à jour en place (RPC save_draft) — sans créer de révision à chaque frappe.
+  useEffect(() => {
+    if (!autosaveEnabled || !editor || busy || !title.trim()) return;
+    const timer = setTimeout(async () => {
+      const blocks = assembleBlocks();
+      if (blocks.length <= 1) return;
+      const stamp = () => setSavedAt(new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
+      try {
+        if (!savedId) {
+          const res = await fetch("/api/articles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: title.trim(), lede: lede.trim(), blocks, tags, status: "draft" }),
+          });
+          const j = await res.json().catch(() => null);
+          if (res.ok && j?.id) { setSavedId(j.id); stamp(); }
+        } else {
+          const { error: rpcErr } = await supabase.rpc("save_draft", {
+            a_id: savedId, a_title: title.trim(), a_lede: lede.trim(), a_tags: tags, new_blocks: blocks,
+          });
+          if (!rpcErr) stamp();
+        }
+      } catch {
+        /* réseau instable : on réessaiera au prochain changement */
+      }
+    }, 2500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dirty, title, lede, tags, autosaveEnabled, savedId, busy]);
 
   function addLink() {
     if (!editor) return;
@@ -191,6 +236,21 @@ export function Editor({
     if (!editor) return;
     const url = window.prompt("URL de l'image");
     if (url) editor.chain().focus().setImage({ src: url }).run();
+  }
+
+  function importMarkdown() {
+    if (!editor || !mdText.trim()) return;
+    const parsed = markdownToBlocks(mdText);
+    let body = parsed;
+    // Si aucun titre saisi et le 1er bloc est un titre, on le promeut en titre.
+    if (!title.trim() && body[0]?.type === "h1") {
+      setTitle(body[0].text);
+      body = body.slice(1);
+    }
+    const html = bodyBlocksToHtml(body, titleId, ledeId);
+    editor.commands.setContent(html);
+    setMdText("");
+    setShowImport(false);
   }
 
   const tbtn = (active: boolean): React.CSSProperties => ({
@@ -225,6 +285,32 @@ export function Editor({
           <button title="Liste numérotée" onClick={() => editor.chain().focus().toggleOrderedList().run()} style={tbtn(editor.isActive("orderedList"))}><ListOrdered size={16} /></button>
           <button title="Citation" onClick={() => editor.chain().focus().toggleBlockquote().run()} style={tbtn(editor.isActive("blockquote"))}><Quote size={16} /></button>
           <button title="Code" onClick={() => editor.chain().focus().toggleCodeBlock().run()} style={tbtn(editor.isActive("codeBlock"))}><Code size={16} /></button>
+          <button title="Importer du Markdown" onClick={() => setShowImport((v) => !v)} style={{ ...tbtn(showImport), marginLeft: "auto", width: "auto", padding: "0 10px", gap: 6, fontSize: 12.5, fontWeight: 600, fontFamily: "inherit" }}>
+            <FileDown size={15} /> Markdown
+          </button>
+        </div>
+      )}
+
+      {showImport && (
+        <div style={{ border: `1px solid ${C.rule}`, borderRadius: 10, padding: 12, marginBottom: 14, background: C.panel }}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: C.inkSoft, marginBottom: 8 }}>
+            Collez du Markdown — il remplacera le corps de l&apos;article (titres, listes, citations, gras, liens…).
+          </div>
+          <textarea
+            value={mdText}
+            onChange={(e) => setMdText(e.target.value)}
+            rows={7}
+            placeholder={"# Titre\n\nUn **paragraphe**.\n\n- point un\n- point deux"}
+            style={{ width: "100%", boxSizing: "border-box", border: `1px solid ${C.rule}`, borderRadius: 8, padding: "10px 11px", fontFamily: "ui-monospace, monospace", fontSize: 13, lineHeight: 1.5, color: C.ink, background: C.field, outline: "none", resize: "vertical" }}
+          />
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button onClick={importMarkdown} disabled={!mdText.trim()} style={{ background: C.ink, color: C.paper, border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: mdText.trim() ? 1 : 0.5 }}>
+              Importer
+            </button>
+            <button onClick={() => { setShowImport(false); setMdText(""); }} style={{ background: "transparent", color: C.inkSoft, border: `1px solid ${C.rule}`, borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+              Annuler
+            </button>
+          </div>
         </div>
       )}
 
@@ -264,6 +350,11 @@ export function Editor({
         <button onClick={() => save("draft")} disabled={busy} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "transparent", color: C.ink, border: `1px solid ${C.rule}`, borderRadius: 9, padding: "10px 16px", fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
           <Save size={15} /> Brouillon
         </button>
+        {autosaveEnabled && savedAt && (
+          <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.inkFaint }}>
+            <Check size={13} /> Brouillon enregistré · {savedAt}
+          </span>
+        )}
       </div>
 
       <style>{`
