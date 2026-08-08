@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
-  Article, Block, Profile, Revision, ResolvedSuggestion, SuggestionKind, SuggestionStatus,
+  Article, Block, Profile, Revision, ResolvedSuggestion, SuggestionKind, SuggestionStatus, FocusRange,
 } from "@/lib/types";
 
 /** Ligne brute de la vue suggestions_resolved. */
@@ -18,6 +18,7 @@ interface ResolvedRow {
   resolved_at: string | null;
   resolved_by: string | null;
   created_at: string;
+  focus_range: FocusRange | null;
   is_stale: boolean;
   resolved_status: ResolvedSuggestion["resolved_status"];
 }

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { computeKind } from "@/lib/suggestion";
+import { focusRangeFromDiff } from "@/lib/focus";
 import type { Article, Block, Revision } from "@/lib/types";
 
 const bodySchema = z.object({
@@ -62,6 +63,8 @@ export async function POST(request: NextRequest) {
   if (kind === "edit" && !body.reason.trim()) {
     return err(400, "Une réécriture exige un motif.");
   }
+  // Portion précise visée, dérivée du diff (offsets dans le texte du bloc).
+  const focusRange = focusRangeFromDiff(originalText, body.proposed_text);
 
   // Blocage par l'auteur.
   const { data: blocked } = await supabase
@@ -109,6 +112,7 @@ export async function POST(request: NextRequest) {
       reason: body.reason.trim() || null,
       kind,
       author_id: user.id,
+      focus_range: focusRange,
     })
     .select("*")
     .single();

@@ -11,6 +11,8 @@ import { Pill } from "@/components/ui/Pill";
 import { Btn } from "@/components/ui/Btn";
 import { Diff } from "@/components/ui/Diff";
 import { SuggestionThread } from "@/components/margin/SuggestionThread";
+import { ReportButton } from "@/components/report/ReportButton";
+import { focusExcerpt } from "@/lib/focus";
 
 /**
  * Carte d'une suggestion dans la marge. Selon le rôle : l'auteur de l'article
@@ -77,6 +79,13 @@ export function SuggestionCard({
         </span>
       </div>
 
+      {s.focus_range && s.focus_range.end > s.focus_range.start && (
+        <div style={{ fontSize: 11, color: C.inkFaint, marginBottom: 7, display: "flex", gap: 5, alignItems: "baseline" }}>
+          <span style={{ fontWeight: 600, letterSpacing: ".03em", textTransform: "uppercase", fontSize: 10 }}>Porte sur</span>
+          <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", color: C.inkSoft }}>« {focusExcerpt(s.original_text, s.focus_range)} »</span>
+        </div>
+      )}
+
       <Diff from={s.original_text} to={s.proposed_text} />
 
       {s.reason && (
@@ -136,6 +145,9 @@ export function SuggestionCard({
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 11, color: C.inkFaint, fontSize: 12 }}>
           <Clock size={12} /> En attente de relecture
+          <span style={{ marginLeft: "auto" }}>
+            <ReportButton targetType="suggestion" targetId={s.id} />
+          </span>
         </div>
       )}
     </motion.div>

@@ -62,6 +62,12 @@ export interface Revision {
   created_at: string;
 }
 
+/** Portion précise du bloc visée (offsets dans original_text). Optionnel. */
+export interface FocusRange {
+  start: number;
+  end: number;
+}
+
 export interface Suggestion {
   id: string;
   article_id: string;
@@ -75,6 +81,20 @@ export interface Suggestion {
   author_id: string;
   resolved_at: string | null;
   resolved_by: string | null;
+  created_at: string;
+  focus_range: FocusRange | null;
+}
+
+export type ReportTargetType = "suggestion" | "article";
+export type ReportStatus = "open" | "reviewed" | "dismissed";
+
+export interface Report {
+  id: string;
+  reporter_id: string;
+  target_type: ReportTargetType;
+  target_id: string;
+  reason: string | null;
+  status: ReportStatus;
   created_at: string;
 }
 

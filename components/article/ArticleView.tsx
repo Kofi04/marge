@@ -18,6 +18,7 @@ import { Composer, type ComposerSubmit } from "@/components/margin/Composer";
 import { SuggestionCard } from "@/components/margin/SuggestionCard";
 import { ShareMenu } from "@/components/article/ShareMenu";
 import { FollowButton } from "@/components/follow/FollowButton";
+import { ReportButton } from "@/components/report/ReportButton";
 
 const DRAFT_KEY = "marge:draft";
 
@@ -227,6 +228,9 @@ export function ArticleView({
           </div>
 
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+            {currentUser && !isArticleAuthor && (
+              <ReportButton targetType="article" targetId={data.article.id} compact />
+            )}
             <ShareMenu title={data.article.title} url={articleUrl} blocks={blocks} />
             {isArticleAuthor && openCount > 0 && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.pencil, fontWeight: 600 }}>

@@ -92,7 +92,17 @@ Légende effort : `S` (≤ ½ j), `M` (~1 j), `L` (2 j+).
 
 ---
 
-## Phase C — Tier 3 : qualité de contribution & confiance
+## Phase C — Tier 3 : qualité de contribution & confiance ✅ livrée (2026-08-08)
+
+> C1 surlignage précis (`suggestions.focus_range` dérivé du diff côté serveur,
+> extrait « porte sur… » dans la carte, `lib/focus.ts`), C2 fil enrichi @mentions
+> (trigger `notify_comment`, rendu en liens + auto-complétion, `lib/mentions.ts`),
+> C3 signalement (`reports` + RLS, `ReportButton` sur suggestion/article) et
+> gestion des contributeurs bloqués dans `/settings`. 14 tests ajoutés.
+>
+> Note C1 : la portion visée est **dérivée automatiquement du diff** (déterministe,
+> sans friction) plutôt que par sélection manuelle — même valeur (intention claire),
+> plus robuste.
 
 ### C1. Surlignage précis dans un bloc · `M` · *on-brand*
 - **But** : le contributeur sélectionne la **phrase exacte** ; la proposition

@@ -70,7 +70,7 @@ lib/
   queries.ts  feed.ts     profile.ts      notifications.ts
   markdown.ts slug.ts     time.ts         auth.ts     schemas.ts
   supabase/{client,server,middleware,anon}.ts
-supabase/migrations/       0001…0007 (schéma, RLS, fonctions, realtime, e-mail, recherche/tags/follows)
+supabase/migrations/       0001…0008 (schéma, RLS, fonctions, realtime, e-mail, recherche/follows, focus/mentions/reports)
 supabase/functions/        notify-email (Edge Function : notification → Resend)
 scripts/                   apply-migrations, seed, test-accept, reassign-demo
 tests/                     diff.test.ts, stale.test.ts
@@ -81,7 +81,12 @@ tests/                     diff.test.ts, stale.test.ts
 ## 4. Modèle de données
 
 Tables : `profiles`, `articles`, `revisions`, `suggestions`,
-`suggestion_comments`, `notifications`, `author_blocks`, `follows`.
+`suggestion_comments`, `notifications`, `author_blocks`, `follows`, `reports`.
+
+Qualité & confiance : `suggestions.focus_range jsonb` (portion précise visée,
+dérivée du diff côté serveur) ; trigger `notify_comment` (participants + @mentions
+→ notifications) ; table `reports` (signalement, lisible par le signaleur et
+l'auteur concerné via `report_target_author`).
 
 Recherche : `articles.tags text[]` (index GIN) + `articles.search_tsv tsvector`
 (titre + chapô + texte des blocs de la révision courante + tags, maintenu par un
@@ -149,7 +154,7 @@ modifié entre-temps, double appel (une seule révision N+1).
 | `/tags/[tag]` | dynamique | Articles publiés portant un tag |
 | `/write` | dynamique | Éditeur Tiptap (création / nouvelle révision) + tags |
 | `/review` | dynamique | File de relecture, tous articles de l'auteur |
-| `/settings` | dynamique | Profil + préférences e-mail + notifications |
+| `/settings` | dynamique | Profil + préférences e-mail + contributeurs bloqués + notifications |
 | `/rss.xml` · `/@handle/rss.xml` | RSS 2.0 | Flux global et par auteur |
 | `/api/articles/[id]` | PATCH/DELETE | Statut d'un article ou suppression (auteur) |
 | `/api/suggestions` `/api/articles` | POST | Écritures validées (Zod, rate limit) |
