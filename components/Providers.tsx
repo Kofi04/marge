@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DialogProvider } from "@/components/ui/Dialog";
 
 /**
  * Cache serveur via TanStack React Query. Pas de state manager global : le reste
@@ -18,5 +19,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DialogProvider>{children}</DialogProvider>
+    </QueryClientProvider>
+  );
 }

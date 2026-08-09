@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Flag, Check } from "lucide-react";
 import { C } from "@/lib/tokens";
 import { createClient } from "@/lib/supabase/client";
+import { useDialog } from "@/components/ui/Dialog";
 import type { ReportTargetType } from "@/lib/types";
 
 /**
@@ -22,6 +23,7 @@ export function ReportButton({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const { prompt } = useDialog();
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -31,7 +33,13 @@ export function ReportButton({
       router.push("/login?next=" + encodeURIComponent(window.location.pathname));
       return;
     }
-    const reason = window.prompt("Signaler ce contenu — raison (optionnel) :", "");
+    const reason = await prompt({
+      title: "Signaler ce contenu",
+      message: "Expliquez brièvement le problème (optionnel).",
+      placeholder: "Raison du signalement…",
+      confirmLabel: "Signaler",
+      danger: true,
+    });
     if (reason === null) return; // annulé
     setBusy(true);
     const { error } = await supabase.from("reports").insert({

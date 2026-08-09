@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { C } from "@/lib/tokens";
 import { timeAgo } from "@/lib/time";
+import { useDialog } from "@/components/ui/Dialog";
 import type { MyArticle } from "@/lib/my-articles";
 import type { ArticleStatus } from "@/lib/types";
 
@@ -25,6 +26,7 @@ const STATUS_STYLE: Record<ArticleStatus, { bg: string; fg: string }> = {
 
 export function MyArticlesList({ articles, handle }: { articles: MyArticle[]; handle: string }) {
   const router = useRouter();
+  const { confirm } = useDialog();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,9 +48,13 @@ export function MyArticlesList({ articles, handle }: { articles: MyArticle[]; ha
   }
 
   async function remove(id: string, title: string) {
-    if (!window.confirm(`Supprimer « ${title} » ? Les révisions et suggestions liées seront perdues. Cette action est irréversible.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: `Supprimer « ${title} » ?`,
+      message: "Les révisions et suggestions liées seront définitivement perdues. Cette action est irréversible.",
+      confirmLabel: "Supprimer",
+      danger: true,
+    });
+    if (!ok) return;
     setError(null);
     setBusyId(id);
     const res = await fetch(`/api/articles/${id}`, { method: "DELETE" });

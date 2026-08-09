@@ -16,6 +16,7 @@ import { C } from "@/lib/tokens";
 import { tagSchema } from "@/lib/schemas";
 import { markdownToBlocks } from "@/lib/markdown-import";
 import { createClient } from "@/lib/supabase/client";
+import { useDialog } from "@/components/ui/Dialog";
 import type { Block, ArticleStatus } from "@/lib/types";
 
 function newBlockId(): string {
@@ -64,6 +65,7 @@ export function Editor({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const { prompt } = useDialog();
   const existingTitle = initial?.blocks.find((b) => b.type === "h1");
   const existingLede = initial?.blocks.find((b) => b.type === "lede");
 
@@ -223,18 +225,29 @@ export function Editor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dirty, title, lede, tags, autosaveEnabled, savedId, busy]);
 
-  function addLink() {
+  async function addLink() {
     if (!editor) return;
     const prev = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("URL du lien", prev ?? "https://");
+    const url = await prompt({
+      title: "Ajouter un lien",
+      message: "Collez l'URL (laissez vide pour retirer le lien).",
+      placeholder: "https://…",
+      defaultValue: prev ?? "https://",
+      confirmLabel: "Appliquer",
+    });
     if (url === null) return;
     if (url === "") return editor.chain().focus().extendMarkRange("link").unsetLink().run();
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }
 
-  function addImage() {
+  async function addImage() {
     if (!editor) return;
-    const url = window.prompt("URL de l'image");
+    const url = await prompt({
+      title: "Insérer une image",
+      message: "Collez l'URL de l'image.",
+      placeholder: "https://…/image.jpg",
+      confirmLabel: "Insérer",
+    });
     if (url) editor.chain().focus().setImage({ src: url }).run();
   }
 
