@@ -31,7 +31,7 @@ npm run test                        # tests unitaires (diff, périmé)
 node scripts/test-accept.mjs        # tests d'intégration accept_suggestion
 node scripts/reassign-demo.mjs <email>   # devenir auteur de l'article de démo
 ```
-KOFI04
+
 
 ## Tests
 
